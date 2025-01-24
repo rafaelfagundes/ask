@@ -2,7 +2,6 @@ package app
 
 import (
 	"database/sql"
-	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rafaelfagundes/ask/internal/config"
@@ -19,23 +18,27 @@ type App struct {
 }
 
 func New() (*App, error) {
-	cfg := config.New()
-
-	db, err := sql.Open("sqlite3", cfg.DBPath())
+	cfg, err := config.New()
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
+		return nil, err
+	}
+
+	db, err := sql.Open("sqlite3", cfg.DatabasePath())
+	if err != nil {
+		return nil, err
 	}
 
 	historyStore, err := history.NewStore(db)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize history store: %w", err)
+		db.Close()
+		return nil, err
 	}
 
 	osInfo := osinfo.Get()
 
 	geminiClient, err := gemini.NewClient(osInfo)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize Gemini client: %w", err)
+		return nil, err
 	}
 
 	return &App{

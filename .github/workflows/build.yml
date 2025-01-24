@@ -8,6 +8,10 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -44,11 +48,8 @@ jobs:
 
     - name: Upload Release Asset
       if: github.event_name == 'release'
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ask-linux-${{ matrix.arch }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./ask-linux-${{ matrix.arch }}
-        asset_name: ask-linux-${{ matrix.arch }}
-        asset_content_type: application/octet-stream
