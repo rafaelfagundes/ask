@@ -40,7 +40,7 @@ jobs:
     - name: Upload binary
       uses: actions/upload-artifact@v4
       with:
-        name: ask-linux-${{ matrix.arch }}
+        name: binary-${{ matrix.arch }}  # Unique artifact name per architecture
         path: ask-linux-${{ matrix.arch }}
 
   release:
@@ -56,15 +56,19 @@ jobs:
       with:
         path: ./artifacts
 
-    - name: Flatten artifact paths (FIXED)
+    - name: Prepare release assets
       run: |
-        # Explicitly move binaries from subdirectories to root artifacts folder
-        mv ./artifacts/ask-linux-amd64/ask-linux-amd64 ./artifacts/
-        mv ./artifacts/ask-linux-arm64/ask-linux-arm64 ./artifacts/
-        # Verify files exist
+        # Move binaries from architecture-specific directories to root
+        mv ./artifacts/binary-amd64/ask-linux-amd64 ./artifacts/
+        mv ./artifacts/binary-arm64/ask-linux-arm64 ./artifacts/
+        
+        # Clean up empty directories
+        rmdir ./artifacts/binary-amd64 ./artifacts/binary-arm64 || true
+        
+        # Verify final file structure
         ls -la ./artifacts
 
-    - name: Create Release and Upload Assets
+    - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         files: |
