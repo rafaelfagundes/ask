@@ -1,0 +1,54 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23.2'
+
+    - name: Install dependencies
+      run: |
+        go mod download
+        go mod verify
+
+    - name: Build
+      env:
+        GOOS: linux
+        GOARCH: ${{ matrix.arch }}
+      run: |
+        go build -v -o ask-linux-${{ matrix.arch }} ./cmd/ask
+
+    - name: Upload binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: ask-linux-${{ matrix.arch }}
+        path: ask-linux-${{ matrix.arch }}
+        retention-days: 5
+
+    - name: Upload Release Asset
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./ask-linux-${{ matrix.arch }}
+        asset_name: ask-linux-${{ matrix.arch }}
+        asset_content_type: application/octet-stream
