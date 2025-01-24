@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*' # Trigger on new tags matching 'v*'
+      - 'v*' 
   release:
     types: [created]
 
@@ -42,7 +42,6 @@ jobs:
       with:
         name: ask-linux-${{ matrix.arch }}
         path: ask-linux-${{ matrix.arch }}
-        retention-days: 5
 
   release:
     needs: build
@@ -52,10 +51,17 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - name: Download all artifacts
+    - name: Download artifacts
       uses: actions/download-artifact@v4
       with:
         path: ./artifacts
+
+    - name: Flatten artifact paths
+      run: |
+        # Move files out of architecture-specific subdirectories
+        find ./artifacts -type f -exec mv {} ./artifacts \;
+        # Remove empty subdirectories
+        find ./artifacts -mindepth 1 -type d -empty -delete
 
     - name: Create Release and Upload Assets
       uses: softprops/action-gh-release@v1
