@@ -7,7 +7,12 @@ go install github.com/charmbracelet/glow@latest
 
 # Initialize and tidy module dependencies
 echo "Setting up Go module..."
-go mod init github.com/rafaelfagundes/ask >/dev/null 2>&1 || true
+if [ ! -f "go.mod" ]; then
+    go mod init github.com/rafaelfagundes/ask
+fi
+
+# Clean up module cache and rebuild
+go clean -modcache
 go mod tidy
 
 # Build from the cmd/ask directory
