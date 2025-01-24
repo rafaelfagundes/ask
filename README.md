@@ -2,6 +2,7 @@
 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/rafaelfagundes/ask)](https://golang.org/)
 [![GitHub Release](https://img.shields.io/github/v/release/rafaelfagundes/ask)](https://github.com/rafaelfagundes/ask/releases)
+[![Build and Release](https://github.com/rafaelfagundes/ask/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/rafaelfagundes/ask/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A context-aware terminal assistant that leverages Google's Gemini AI to help with command line tasks, scripting, and system administration.
