@@ -1,16 +1,14 @@
-name: Build
+name: Build and Release
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - 'v*' # Trigger on new tags matching 'v*'
   release:
     types: [created]
 
 permissions:
   contents: write
-  packages: write
 
 jobs:
   build:
@@ -46,10 +44,22 @@ jobs:
         path: ask-linux-${{ matrix.arch }}
         retention-days: 5
 
-    - name: Upload Release Asset
-      if: github.event_name == 'release'
+  release:
+    needs: build
+    if: |
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+      github.event_name == 'release'
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./artifacts
+
+    - name: Create Release and Upload Assets
       uses: softprops/action-gh-release@v1
       with:
-        files: ask-linux-${{ matrix.arch }}
+        files: ./artifacts/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
