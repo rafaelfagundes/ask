@@ -1,4 +1,4 @@
-# Ask 🤖 - Terminal AI Assistant powered by Gemini
+# Ask 🤖 - Terminal AI Assistant
 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/rafaelfagundes/ask)](https://golang.org/)
 [![GitHub Release](https://img.shields.io/github/v/release/rafaelfagundes/ask)](https://github.com/rafaelfagundes/ask/releases)
