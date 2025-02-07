@@ -25,6 +25,8 @@ func Run(a *app.App, args []string) error {
 		return handleHistoryCommand(a, args[1:])
 	case "last":
 		return handleLastCommand(a, args[1:])
+	case "show":
+		return handleShowQuestionById(a, args[1:])
 	case "-h", "--help":
 		printUsage()
 		return nil
@@ -89,7 +91,7 @@ func handleHistoryCommand(a *app.App, args []string) error {
 		return showHistoryList(a)
 	case len(args) == 1:
 		if pos, err := strconv.Atoi(args[0]); err == nil {
-			return showHistoryEntry(a, pos)
+			return showHistoryEntry(a, pos, false)
 		}
 		return fmt.Errorf("invalid history number")
 	default:
@@ -116,6 +118,25 @@ func handleLastCommand(a *app.App, args []string) error {
 	}
 
 	return showResponse(entry.Response, *noPager)
+}
+
+func handleShowQuestionById(a *app.App, args []string) error {
+	fs := flag.NewFlagSet("show", flag.ExitOnError)
+	noPager := fs.Bool("no-pager", false, "Disable paginated output")
+
+	if err := fs.Parse(args[1:]); err != nil {
+		return err
+	}
+	if len(args) == 0 {
+		return fmt.Errorf("missing question id. Usage: ask show <position|all>")
+	}
+
+	pos, err := strconv.Atoi(args[0])
+	if err != nil {
+		fmt.Printf("No question found with ID %d\n", pos)
+	}
+
+	return showHistoryEntry(a, pos, *noPager)
 }
 
 func handleDeleteCommand(a *app.App, args []string) error {
@@ -161,13 +182,13 @@ func showHistoryList(a *app.App) error {
 	return cmd.Run()
 }
 
-func showHistoryEntry(a *app.App, pos int) error {
+func showHistoryEntry(a *app.App, pos int, noPager bool) error {
 	entry, err := a.History.Get(pos)
 	if err != nil {
 		return fmt.Errorf("error retrieving history entry: %v", err)
 	}
 
-	return showResponse(entry.Response, false)
+	return showResponse(entry.Response, noPager)
 }
 
 func confirmAndDeleteAll(a *app.App) error {
@@ -225,12 +246,15 @@ Commands:
   history         Show command history
   history delete  Delete history entries
   last            Show last response
+  show            Show a question by ID
   
 Options:`)
+
 	// Add flag descriptions
 	fmt.Println(`
 Examples:
   ask -c  # Show config directory
   ask "What is Go?"
-  ask --no-pager "How do I create a file in Go?"`)
+  ask --no-pager "How do I create a file in Go?"
+  ask show 5`)
 }

@@ -12,7 +12,7 @@ import (
 
 func checkDependencies() error {
 	if _, err := exec.LookPath("glow"); err != nil {
-		return fmt.Errorf("Glow not found. Install with:\n  go install github.com/charmbracelet/glow@latest")
+		return fmt.Errorf("glow not found. Install with:\n  go install github.com/charmbracelet/glow@latest")
 	}
 	return nil
 }
